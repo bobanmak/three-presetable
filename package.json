@@ -1,0 +1,33 @@
+{
+  "name": "three-presetable",
+  "version": "1.0.1",
+  "description": "Implements presets for Object3D in three.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bobanmak/three-presetable.git"
+  },
+  "keywords": [
+    "presets",
+    "threejs"
+  ],
+  "author": "bobanmak",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bobanmak/three-presetable/issues"
+  },
+  "homepage": "https://github.com/bobanmak/three-presetable#readme",
+  "devDependencies": {
+    "@rollup/plugin-replace": "latest",
+    "async": "latest",
+    "gulp": "latest",
+    "rollup-plugin-buble": "latest",
+    "rollup-plugin-node-resolve": "latest",
+    "gulp-rollup": "latest",
+    "rollup": "latest",
+    "three-viewport": "git+https://github.com/i3ernie/three-viewport.git"
+  }
+}
