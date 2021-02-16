@@ -1,9 +1,29 @@
-// 6.2.21 Boban J.
+/** Interface to implement presets for any Object 3D in THree.js
+ *  Created by Boban Jordanoski 16.02.2021
+ * 
+ *  TO.DO:
+ *  - add TWEENS
+ * const tweaks = {
+ *       daylight: {
+ *           ignore: [ "intensity" ],
+ *           tween: {
+ *               position: {
+ *                  time: 0.5
+ *              }
+ *          }
+ *      }
+ *  };
+ */
 
 const Presetable = {
 
     interface: {
 
+        /**
+         * Initialise Interfaces
+         * @param {Object} opts Object with default presets
+         * @param {Object} settings Configuration
+         */
         initPresetable: function( opts, settings ){
             this.presets  = opts || {};
             this.settings = {
@@ -13,11 +33,11 @@ const Presetable = {
 
             Object.assign( this.settings, settings );
         },
-    
-        getInfo: function(){
-            console.log( "interface - presets: ", this.presets );
-        },
-    
+
+        /**
+         * Add Presets
+         * @param {Object} presets Object with list of presets
+         */
         addPresets: function( presets ){
     
             let keys = Object.keys( presets );
@@ -41,7 +61,11 @@ const Presetable = {
 
         },
     
-        getPreset: function( name ){
+        /**
+         * Get Preset Definition by name
+         * @param {String} name Preset name
+         */
+        getPresetByName: function( name ){
     
             if ( typeof this.presets[ name ] === "undefined" || !this.presets[ name ] ){
                 console.warn( name + " Preset is not defined!" );
@@ -52,6 +76,10 @@ const Presetable = {
             }
         },
 
+        /**
+         * Create Object with presets from actuall Object
+         * @param {Array} properties List with property Names, which we write out
+         */
         filterPreset: function( properties ){
             
             let preset = {};
@@ -78,43 +106,52 @@ const Presetable = {
             return preset;
         },
     
+        /**
+         * Load preset 
+         * @param {String} name Preset name
+         */
         loadPreset: function( name ){
     
-            let preset = this.getPreset( name );
+            let preset = this.getPresetByName( name );
     
             if ( !preset ) return;
     
-            Object.keys( preset ).forEach( ( attrName ) => {
+            Object.keys( preset ).forEach( ( propertyName ) => {
                 
-                this.setAttributesValues( this[ attrName ], preset[ attrName ] );
+                this.setPropertiesValues( this[ propertyName ], preset[ propertyName ] );
                 
             });
     
             if ( this.settings.debug ) console.log( "Preset " + name + " loaded: ", preset );
         },
 
-        setAttributesValues: function( attribute, presetValues ){
+        /**
+         * set Presetvalue to the Object property value
+         * @param {Object} property 
+         * @param {} presetValues
+         */
+        setPropertiesValues: function( property, presetValues ){
 
             // Object has not defined attribute as preset name
-            if ( typeof attribute === "undefined" || typeof presetValues === "undefined" ) return;
+            if ( typeof property === "undefined" || typeof presetValues === "undefined" ) return;
                 
             // if Vector3 
-            if ( attribute.isVector3 || attribute.isEuler ){
-                attribute.set( ...presetValues );
+            if ( property.isVector3 || property.isEuler ){
+                property.set( ...presetValues );
             }
 
             // if function
-            else if ( attribute === "function" ){
-                attribute( presetValues ); 
+            else if ( property === "function" ){
+                property( presetValues ); 
             }
 
             // if preset object is nested 1 level
-            else if ( this.settings.recursion && typeof attribute === "object" && Object.keys( attribute ).length > 0 ){
+            else if ( this.settings.recursion && typeof property === "object" && Object.keys( property ).length > 0 ){
 
                 // recursion
-                Object.keys( presetValues ).forEach( ( nestedAttrName ) => {
+                Object.keys( presetValues ).forEach( ( nestedPropertyName ) => {
 
-                    this.setAttributesValues( this[ nestedAttrName ], presetValues[ nestedAttrName ] );
+                    this.setPropertiesValues( this[ nestedPropertyName ], presetValues[ nestedPropertyName ] );
 
                 });
 
@@ -122,15 +159,22 @@ const Presetable = {
 
             // set simple value
             else {
-                attribute = presetValues;
+                property = presetValues;
             }
         }
 
     },
 
+    /**
+     * Implement and initialise interface
+     * @param {Object} instance Object3D insance
+     * @param {Object} presets Default presets
+     */
     implement: function( instance, presets ){
+       
         Object.assign( instance, Presetable.interface );
         instance.initPresetable( presets );
+
     }
 
 };

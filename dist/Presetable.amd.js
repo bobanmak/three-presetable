@@ -1,20 +1,45 @@
 define(['exports'], function (exports) { 'use strict';
 
-    // 6.2.21 Boban J.
+    /** Interface to implement presets for any Object 3D in THree.js
+     *  Created by Boban Jordanoski 16.02.2021
+     * 
+     *  TO.DO:
+     *  - add TWEENS
+     * const tweaks = {
+     *       daylight: {
+     *           ignore: [ "intensity" ],
+     *           tween: {
+     *               position: {
+     *                  time: 0.5
+     *              }
+     *          }
+     *      }
+     *  };
+     */
 
     const Presetable = {
 
         interface: {
 
-            initPresetable: function( opts ){
-                // console.log("Opts: ", opts );
-                this.presets = opts || {};
+            /**
+             * Initialise Interfaces
+             * @param {Object} opts Object with default presets
+             * @param {Object} settings Configuration
+             */
+            initPresetable: function( opts, settings ){
+                this.presets  = opts || {};
+                this.settings = {
+                    debug: true,
+                    recursion: true
+                };
+
+                Object.assign( this.settings, settings );
             },
-        
-            getInfo: function(){
-                console.log( "interface - presets: ", this.presets );
-            },
-        
+
+            /**
+             * Add Presets
+             * @param {Object} presets Object with list of presets
+             */
             addPresets: function( presets ){
         
                 let keys = Object.keys( presets );
@@ -33,14 +58,16 @@ define(['exports'], function (exports) { 'use strict';
                         this.presets[ presetName ] = presetValues;
                     } 
         
-                    console.log( "Preset " + presetName +  " created: ", this.presets[ presetName ] );
+                    if ( this.settings.debug ) { console.log( "Preset " + presetName +  " created: ", this.presets[ presetName ] ); }
                 });
-            
-        
-                
+
             },
         
-            getPreset: function( name ){
+            /**
+             * Get Preset Definition by name
+             * @param {String} name Preset name
+             */
+            getPresetByName: function( name ){
         
                 if ( typeof this.presets[ name ] === "undefined" || !this.presets[ name ] ){
                     console.warn( name + " Preset is not defined!" );
@@ -50,59 +77,106 @@ define(['exports'], function (exports) { 'use strict';
                     return this.presets[ name ];
                 }
             },
+
+            /**
+             * Create Object with presets from actuall Object
+             * @param {Array} properties List with property Names, which we write out
+             */
+            filterPreset: function( properties ){
+                
+                let preset = {};
+                let property = {};
+                
+                properties.forEach( ( key )=>{
+                    
+                    if ( !this[ key ] || typeof this[ key ] === "undefined" ) { return; }
+
+                    if ( this[ key ].isEuler || this[ key ].isVector3 ){
+                        property[ key ] = this[ key ].toArray();
+                    }
+                    else if ( typeof this[ key ] === "function" ){
+                        property[ key ] = {};
+                    }
+                    else {
+                        property[ key ] = this[ key ];
+                    }
+
+                    Object.assign( preset, property );
+                });
+
+                if ( this.settings.debug ) { console.log("Filtered Preset: ", preset ); }
+                return preset;
+            },
         
+            /**
+             * Load preset 
+             * @param {String} name Preset name
+             */
             loadPreset: function( name ){
         
-                let preset = this.getPreset( name );
+                let preset = this.getPresetByName( name );
         
                 if ( !preset ) { return; }
         
-                Object.keys( preset ).forEach( ( attrName ) => {
-                    var ref;
-
-        
-                    // Object has defined attribute
-                    if ( typeof this[ attrName ] === "undefined" ) { return; }
-        
-                    // if Vector3 
-                    if ( this[ attrName ].isVector3 || this[ attrName ].isEuler ){
-                        (ref = this[ attrName ]).set.apply( ref, preset[ attrName ] );
-                    }
-        
-                    // if preset object is nested 1 level
-                    else if ( typeof preset[ attrName ] === "object" && Object.keys( preset[ attrName ] ).length > 0 ){
-            
-                        Object.keys( preset[ attrName ] ).forEach( ( nestedAttrName ) => {
-                            var ref;
-
-        
-                            if ( typeof this[ attrName ][ nestedAttrName ] === "undefined" ) { return; }
-        
-                            if ( this[ attrName ][ nestedAttrName ].isVector3 || this[ attrName ].isEuler ){
-                                (ref = this[ attrName ][ nestedAttrName ]).set.apply( ref, preset[ attrName ][ nestedAttrName ] );
-                            }
-                            else {
-                                this[ attrName ][ nestedAttrName ] = preset[ attrName ][ nestedAttrName ] ;
-                            }
-                            
-                        });
-        
-                    } 
-        
-                    else {
-                        this[ attrName ] = preset[ attrName ];
-                    }
+                Object.keys( preset ).forEach( ( propertyName ) => {
+                    
+                    this.setPropertiesValues( this[ propertyName ], preset[ propertyName ] );
                     
                 });
         
-                console.log( "Preset " + name + " loaded: ", preset );
+                if ( this.settings.debug ) { console.log( "Preset " + name + " loaded: ", preset ); }
+            },
+
+            /**
+             * set Presetvalue to the Object property value
+             * @param {Object} property 
+             * @param {} presetValues
+             */
+            setPropertiesValues: function( property, presetValues ){
+
+                // Object has not defined attribute as preset name
+                if ( typeof property === "undefined" || typeof presetValues === "undefined" ) { return; }
+                    
+                // if Vector3 
+                if ( property.isVector3 || property.isEuler ){
+                    property.set.apply( property, presetValues );
+                }
+
+                // if function
+                else if ( property === "function" ){
+                    property( presetValues ); 
+                }
+
+                // if preset object is nested 1 level
+                else if ( this.settings.recursion && typeof property === "object" && Object.keys( property ).length > 0 ){
+
+                    // recursion
+                    Object.keys( presetValues ).forEach( ( nestedPropertyName ) => {
+
+                        this.setPropertiesValues( this[ nestedPropertyName ], presetValues[ nestedPropertyName ] );
+
+                    });
+
+                } 
+
+                // set simple value
+                else {
+                    property = presetValues;
+                }
             }
 
         },
 
+        /**
+         * Implement and initialise interface
+         * @param {Object} instance Object3D insance
+         * @param {Object} presets Default presets
+         */
         implement: function( instance, presets ){
+           
             Object.assign( instance, Presetable.interface );
             instance.initPresetable( presets );
+
         }
 
     };
