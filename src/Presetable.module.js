@@ -4,9 +4,14 @@ const Presetable = {
 
     interface: {
 
-        initPresetable: function( opts ){
-            // console.log("Opts: ", opts );
-            this.presets = opts || {};
+        initPresetable: function( opts, settings ){
+            this.presets  = opts || {};
+            this.settings = {
+                debug: false,
+                recursion: true
+            };
+
+            Object.assign( this.settings, settings );
         },
     
         getInfo: function(){
@@ -31,11 +36,9 @@ const Presetable = {
                     this.presets[ presetName ] = presetValues;
                 } 
     
-                console.log( "Preset " + presetName +  " created: ", this.presets[ presetName ] );
+                if ( this.settings.debug ) console.log( "Preset " + presetName +  " created: ", this.presets[ presetName ] );
             });
-        
-    
-            
+
         },
     
         getPreset: function( name ){
@@ -56,40 +59,45 @@ const Presetable = {
             if ( !preset ) return;
     
             Object.keys( preset ).forEach( ( attrName ) => {
-    
-                // Object has defined attribute
-                if ( typeof this[ attrName ] === "undefined" ) return;
-    
-                // if Vector3 
-                if ( this[ attrName ].isVector3 || this[ attrName ].isEuler ){
-                    this[ attrName ].set( ...preset[ attrName ] );
-                }
-    
-                // if preset object is nested 1 level
-                else if ( typeof preset[ attrName ] === "object" && Object.keys( preset[ attrName ] ).length > 0 ){
-        
-                    Object.keys( preset[ attrName ] ).forEach( ( nestedAttrName ) => {
-    
-                        if ( typeof this[ attrName ][ nestedAttrName ] === "undefined" ) return;
-    
-                        if ( this[ attrName ][ nestedAttrName ].isVector3 || this[ attrName ].isEuler ){
-                            this[ attrName ][ nestedAttrName ].set( ...preset[ attrName ][ nestedAttrName ] );
-                        }
-                        else {
-                            this[ attrName ][ nestedAttrName ] = preset[ attrName ][ nestedAttrName ] ;
-                        }
-                        
-                    });
-    
-                } 
-    
-                else {
-                    this[ attrName ] = preset[ attrName ];
-                }
+                
+                this.setAttributesValues( this[ attrName ], preset[ attrName ] );
                 
             });
     
-            console.log( "Preset " + name + " loaded: ", preset );
+            if ( this.settings.debug ) console.log( "Preset " + name + " loaded: ", preset );
+        },
+
+        setAttributesValues: function( attribute, presetValues ){
+
+            // Object has not defined attribute as preset name
+            if ( typeof attribute === "undefined" || typeof presetValues === "undefined" ) return;
+                
+            // if Vector3 
+            if ( attribute.isVector3 || attribute.isEuler ){
+                attribute.set( ...presetValues );
+            }
+
+            // if function
+            else if ( attribute === "function" ){
+                attribute( presetValues ); 
+            }
+
+            // if preset object is nested 1 level
+            else if ( this.settings.recursion && typeof attribute === "object" && Object.keys( attribute ).length > 0 ){
+
+                // recursion
+                Object.keys( presetValues ).forEach( ( nestedAttrName ) => {
+
+                    this.setAttributesValues( this[ nestedAttrName ], presetValues[ nestedAttrName ] );
+
+                });
+
+            } 
+
+            // set simple value
+            else {
+                attribute = presetValues;
+            }
         }
 
     },

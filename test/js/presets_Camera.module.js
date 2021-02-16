@@ -28,6 +28,8 @@ Presetable.implement( VP.camera );
 // add presets on runtime
 VP.camera.addPresets( presets );
 
+console.log("VP.camera", VP.camera );
+
 VP.camera.position.set(4,4,11);
 VP.camera.lookAt(VP.scene.position);
 stage1( VP );

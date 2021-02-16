@@ -22,12 +22,24 @@ const presets = {
 		intensity: 1,
 		position: [ 4, 4, 4 ],
 		target: {
-			position: [ 10, -10, 10]
+			position:  [ 10, -10, 10]
 		}
 	}, 
 	nighttime: {
 		intensity: 0.5,
 		position: [ 8, 9, 8 ]
+	}
+};
+
+// additional information and settings for the presets
+const tweaks = {
+	daylight: {
+		ignore: [ "intensity" ],
+		tween: {
+			position: {
+				time: 0.5
+			}
+		}
 	}
 };
 
@@ -38,9 +50,7 @@ directionalLight.position.set(3, 6, 3 );
 directionalLight.target.position.set(0, 0, 0);
 VP.scene.add( directionalLight );
 
-
 Presetable.implement( directionalLight );
-
 
 // add presets on runtime
 directionalLight.addPresets( presets );
