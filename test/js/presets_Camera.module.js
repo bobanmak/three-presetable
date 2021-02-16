@@ -42,15 +42,17 @@ let directionalLight 	= new THREE.DirectionalLight( { color: "0xff0000", intensi
 directionalLight.position.set(3, 6, 3 );
 directionalLight.target.position.set(0, 0, 0);
 VP.scene.add( directionalLight );
-
+ 
 
 
 // toggle Light
 setTimeout( () => { 
 	VP.camera.loadPreset( "daylight" );
+	VP.camera.filterPreset( [ "position", "rotation"] );
  }, 2500);
 
 setTimeout( () => { 
 	VP.camera.loadPreset( "nighttime" );
+	VP.camera.filterPreset( [ "position", "rotation", "far"] );
 }, 5000);
 

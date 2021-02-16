@@ -7,7 +7,7 @@ const Presetable = {
         initPresetable: function( opts, settings ){
             this.presets  = opts || {};
             this.settings = {
-                debug: false,
+                debug: true,
                 recursion: true
             };
 
@@ -50,6 +50,32 @@ const Presetable = {
             else {
                 return this.presets[ name ];
             }
+        },
+
+        filterPreset: function( properties ){
+            
+            let preset = {};
+            let property = {};
+            
+            properties.forEach( ( key )=>{
+                
+                if ( !this[ key ] || typeof this[ key ] === "undefined" ) return;
+
+                if ( this[ key ].isEuler || this[ key ].isVector3 ){
+                    property[ key ] = this[ key ].toArray();
+                }
+                else if ( typeof this[ key ] === "function" ){
+                    property[ key ] = {};
+                }
+                else {
+                    property[ key ] = this[ key ];
+                }
+
+                Object.assign( preset, property );
+            });
+
+            if ( this.settings.debug ) console.log("Filtered Preset: ", preset );
+            return preset;
         },
     
         loadPreset: function( name ){
