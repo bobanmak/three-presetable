@@ -126,6 +126,14 @@ define(['exports'], function (exports) { 'use strict';
         
                 if ( this.settings.debug ) { console.log( "Preset " + name + " loaded: ", preset ); }
             },
+            
+            /**
+            * ClearPresets
+             */
+            clearPresets: function(){
+
+                this.presets = {};
+            },
 
             /**
              * set Presetvalue to the Object property value
