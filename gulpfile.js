@@ -6,6 +6,7 @@
 
 const gulp = require('gulp');
 const build_inteface = require("./build/build_interface_amd");
+const build_intefaceModule = require('./build/build_interface_module');
 
 gulp.task('init', ( done ) => {
     
@@ -16,12 +17,17 @@ gulp.task('init', ( done ) => {
 gulp.task("build", ( done ) => {
     "use strict";
     build_inteface( ()=>{
-        
+        build_intefaceModule( ()=>{
             done();
+        });
+           
        
     });
 });
 
 gulp.task("buildAMD", build_inteface );
 
-gulp.task('default', gulp.series('init', 'buildAMD') );
+gulp.task('buildES', build_intefaceModule );
+
+
+gulp.task('default', gulp.series('init', 'buildAMD', 'buildES') );
