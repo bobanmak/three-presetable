@@ -118,7 +118,7 @@ const Presetable = {
     
             Object.keys( preset ).forEach( ( propertyName ) => {
                 
-                this.setPropertiesValues( this, preset, propertyName );
+                this.setPropertiesValues( this[ propertyName ], preset[ propertyName ] );
                 
             });
     
@@ -138,11 +138,8 @@ const Presetable = {
          * @param {Object} property 
          * @param {} presetValues
          */
-        setPropertiesValues: function( instance, preset, propertyName ){
+        setPropertiesValues: function( property, presetValues ){
 
-            let property     = instance[ propertyName ];
-            let presetValues = preset[ propertyName ];
-            
             // Object has not defined attribute as preset name
             if ( typeof property === "undefined" || typeof presetValues === "undefined" ) return;
                 
@@ -151,14 +148,9 @@ const Presetable = {
                 property.set( ...presetValues );
             }
 
-            // if property function
-            else if ( typeof property === "function" ){
+            // if function
+            else if ( property === "function" ){
                 property( presetValues ); 
-            }
-
-            // if preset function
-            else if ( typeof presetValues === "function" ){
-                instance[ propertyName ] = presetValues( property );
             }
 
             // if preset object is nested 1 level
@@ -167,7 +159,7 @@ const Presetable = {
                 // recursion
                 Object.keys( presetValues ).forEach( ( nestedPropertyName ) => {
 
-                    this.setPropertiesValues( this, presetValues, nestedPropertyName );
+                    this.setPropertiesValues( this[ nestedPropertyName ], presetValues[ nestedPropertyName ] );
 
                 });
 
@@ -175,7 +167,7 @@ const Presetable = {
 
             // set simple value
             else {
-                instance[ propertyName ] = presetValues;
+                property = presetValues;
             }
         }
 

@@ -120,7 +120,7 @@ define(['exports'], function (exports) { 'use strict';
         
                 Object.keys( preset ).forEach( ( propertyName ) => {
                     
-                    this.setPropertiesValues( this[ propertyName ], preset[ propertyName ] );
+                    this.setPropertiesValues( this, preset, propertyName );
                     
                 });
         
@@ -140,8 +140,11 @@ define(['exports'], function (exports) { 'use strict';
              * @param {Object} property 
              * @param {} presetValues
              */
-            setPropertiesValues: function( property, presetValues ){
+            setPropertiesValues: function( instance, preset, propertyName ){
 
+                let property     = instance[ propertyName ];
+                let presetValues = preset[ propertyName ];
+                
                 // Object has not defined attribute as preset name
                 if ( typeof property === "undefined" || typeof presetValues === "undefined" ) { return; }
                     
@@ -150,9 +153,14 @@ define(['exports'], function (exports) { 'use strict';
                     property.set.apply( property, presetValues );
                 }
 
-                // if function
-                else if ( property === "function" ){
+                // if property function
+                else if ( typeof property === "function" ){
                     property( presetValues ); 
+                }
+
+                // if preset function
+                else if ( typeof presetValues === "function" ){
+                    instance[ propertyName ] = presetValues( property );
                 }
 
                 // if preset object is nested 1 level
@@ -161,7 +169,7 @@ define(['exports'], function (exports) { 'use strict';
                     // recursion
                     Object.keys( presetValues ).forEach( ( nestedPropertyName ) => {
 
-                        this.setPropertiesValues( this[ nestedPropertyName ], presetValues[ nestedPropertyName ] );
+                        this.setPropertiesValues( this, presetValues, nestedPropertyName );
 
                     });
 
@@ -169,7 +177,7 @@ define(['exports'], function (exports) { 'use strict';
 
                 // set simple value
                 else {
-                    property = presetValues;
+                    instance[ propertyName ] = presetValues;
                 }
             }
 
