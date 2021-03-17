@@ -167,7 +167,7 @@ const Presetable = {
                 // recursion
                 Object.keys( presetValues ).forEach( ( nestedPropertyName ) => {
 
-                    this.setPropertiesValues( this, presetValues, nestedPropertyName );
+                    this.setPropertiesValues( instance[ propertyName ], presetValues, nestedPropertyName );
 
                 });
 
