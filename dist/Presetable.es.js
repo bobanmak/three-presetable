@@ -153,7 +153,11 @@ const Presetable = {
 
             // if property function
             else if ( typeof property === "function" ){
-                property( presetValues ); 
+                if ( Array.isArray( presetValues ) ){
+                    property.apply( void 0, presetValues ); 
+                }
+                console.log("prop", property, presetValues, propertyName);
+               // property( presetValues ); 
             }
 
             // if preset function

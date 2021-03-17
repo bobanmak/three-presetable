@@ -6,10 +6,13 @@ import Presetable from "../../src/Presetable.module.js"
 
 const presets = {
 	daylight: {
-		position: [ 10, 10 , 10]
+		position: [ 10, 10 , 10],
+		lookAt:[ 2, 2, 2]
+	
 	}, 
 	nighttime: {
-		position: [ 20, 10 , 20]
+		position: [ 20, 10 , 20],
+		lookAt:[ 0, 0, 0]
 	}
 };
 
