@@ -29,7 +29,7 @@ define(['exports'], function (exports) { 'use strict';
             initPresetable: function( opts, settings ){
                 this.presets  = opts || {};
                 this.settings = {
-                    debug: true,
+                    debug: false,
                     recursion: true
                 };
 

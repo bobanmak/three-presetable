@@ -27,7 +27,7 @@ const Presetable = {
         initPresetable: function( opts, settings ){
             this.presets  = opts || {};
             this.settings = {
-                debug: true,
+                debug: false,
                 recursion: true
             };
 
