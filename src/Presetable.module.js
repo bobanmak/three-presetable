@@ -144,10 +144,24 @@ const Presetable = {
             let presetValues = preset[ propertyName ];
             
             // Object has not defined attribute as preset name
-            if ( typeof property === "undefined" || typeof presetValues === "undefined" ) return;
+            if ( typeof property === "undefined" || typeof presetValues === "undefined" ) return;      
+
+            // if preset function
+            if ( typeof presetValues === "function" ){
                 
+                let value = presetValues( property );
+               
+                if ( value.isVector3 || value.isEuler ){
+                    instance[ propertyName ].copy( value );
+                } 
+                else {
+                    instance[ propertyName ] = presetValues( property );
+                }
+                // old instance[ propertyName ] = presetValues( property );
+            }
+
             // if Vector3 
-            if ( property.isVector3 || property.isEuler ){
+            else if ( property.isVector3 || property.isEuler ){
                 property.set( ...presetValues );
             }
 
@@ -158,11 +172,6 @@ const Presetable = {
                 } else {
                     property( presetValues )
                 }
-            }
-
-            // if preset function
-            else if ( typeof presetValues === "function" ){
-                instance[ propertyName ] = presetValues( property );
             }
 
             // if preset object is nested 1 level
